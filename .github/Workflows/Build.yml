@@ -1,0 +1,40 @@
+
+name: 编译课派助手APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 下载仓库文件
+        uses: actions/checkout@v4
+
+      - name: 安装Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 解压安卓项目
+        run: |
+          mkdir -p android-project
+          unzip -q KepaiAssistPhone-GitHubActions.zip -d android-project
+          ls -la android-project
+
+      - name: 安装Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.4'
+
+      - name: 编译APK
+        working-directory: android-project
+        run: gradle assembleDebug --stacktrace
+
+      - name: 上传APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: KepaiAssist-APK
+          path: android-project/app/build/outputs/apk/debug/*.apk
